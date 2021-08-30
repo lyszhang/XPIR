@@ -17,6 +17,32 @@
 
 #include "PIRViewCLI.hpp"
 #include "PIRController.hpp"
+#include <stdio.h>
+#include <string.h>
+#include <iostream>
+#include <string>
+
+#include <openssl/sha.h>
+std::string sha256(const std::string str)
+{
+    char buf[2];
+    unsigned char hash[SHA256_DIGEST_LENGTH];
+    SHA256_CTX sha256;
+    SHA256_Init(&sha256);
+    SHA256_Update(&sha256, str.c_str(), str.size());
+    SHA256_Final(hash, &sha256);
+    std::string NewString = "";
+    for(int i = 0; i < SHA256_DIGEST_LENGTH; i++)
+    {
+        sprintf(buf,"%02x",hash[i]);
+        NewString = NewString + buf[0] + buf[1];
+    }
+    std::cout << hash << std::endl;
+    std::cout << SHA256_DIGEST_LENGTH << std::endl;
+    std::cout << NewString << std::endl;
+        return NewString;
+}
+
 
 /**
  *	Class constructor.
@@ -80,7 +106,39 @@ void PIRViewCLI::catalogUpdate(CatalogEvent& event)
 	cout << "##############################################" << endl;
 	cout << "#                                            #" << endl;
 	cout << "# Which file do you want ?                   #" << endl;
-	getUserInputFile(event.getCatalog().size()) ;
+
+	string x; 
+	int choice  = -1;
+	bool retry;
+	MessageEvent event2(WARNING);
+
+	do
+	{
+		retry = false;
+		cin >> x ;
+		cin.clear();
+		cin.get();
+    string y = sha256(x).substr(0,20);		
+    cout << y << endl;
+    for (unsigned int i = 0 ; i < event.getCatalog().size() ; i++) 
+    {
+      if (event.getCatalog().at(i) == y)
+      {
+        choice = i;
+        break;
+      }
+    }
+		if (choice < 0)
+		{
+			retry = true;
+			event2.setMessage("This file doesn't exist, retry :");
+			messageUpdate(event2);
+		}
+	}while(retry);
+
+	controller->notifyClientChoice(choice);
+
+	//getUserInputFile(event.getCatalog().size()) ;
 }
 
 /**
@@ -159,4 +217,5 @@ void PIRViewCLI::getUserInputFile(int maxValue)
 
 	controller->notifyClientChoice(--choice);
 }
+
 
