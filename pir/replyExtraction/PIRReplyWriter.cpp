@@ -124,6 +124,7 @@ void PIRReplyWriter::writeFileSecurely(uint64_t element, DESC catalog, uint64_t 
       uint64_t writtenchars = 0;
 
       tmp = clearChunks.front();
+      std::cout << "tmp: " << tmp << endl;
       if (bytestoskip != 0)
       {
         file.write(tmp+bytestoskip , min(leftChars, chunkSize - bytestoskip));

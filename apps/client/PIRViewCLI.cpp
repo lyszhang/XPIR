@@ -21,6 +21,7 @@
 #include <string.h>
 #include <iostream>
 #include <string>
+#include <cstdlib> 
 
 #include <openssl/sha.h>
 std::string sha256(const std::string str)
@@ -37,9 +38,6 @@ std::string sha256(const std::string str)
         sprintf(buf,"%02x",hash[i]);
         NewString = NewString + buf[0] + buf[1];
     }
-    std::cout << hash << std::endl;
-    std::cout << SHA256_DIGEST_LENGTH << std::endl;
-    std::cout << NewString << std::endl;
         return NewString;
 }
 
@@ -86,21 +84,21 @@ void PIRViewCLI::catalogUpdate(CatalogEvent& event)
 	cout << "#                                            #" << endl;
 	cout << "# Connection established                     #" << endl;
 	cout << "#                                            #" << endl;
-	cout << "##############################################" << endl;
-	cout << "#                                            #" << endl;
-	cout << "# File List :                                #" << endl;
-	cout << "# °°°°°°°°°°°                                #" << endl;
-	cout << "#                                            #" << endl;
+	//cout << "##############################################" << endl;
+	//cout << "#                                            #" << endl;
+	//cout << "# File List :                                #" << endl;
+	//cout << "# °°°°°°°°°°°                                #" << endl;
+	//cout << "#                                            #" << endl;
 
-	for (unsigned int i = 0 ; i < event.getCatalog().size() ; i++) 
-	{
-		cout << "# " << i+1 << ") " << event.getCatalog().at(i);
-
-		for(unsigned int j = 0; j < 40 - event.getCatalog().at(i).length(); j++)
-			cout << " ";
-
-		cout << "#" << endl;
-	}
+	// for (unsigned int i = 0 ; i < event.getCatalog().size() ; i++) 
+	// {
+	//	cout << "# " << i+1 << ") " << event.getCatalog().at(i);
+	//
+	//	for(unsigned int j = 0; j < 66 - event.getCatalog().at(i).length(); j++)
+	//		cout << " ";
+	//
+	//	cout << "#" << endl;
+	//}
 
 	cout << "#                                            #" << endl;
 	cout << "##############################################" << endl;
@@ -115,10 +113,13 @@ void PIRViewCLI::catalogUpdate(CatalogEvent& event)
 	do
 	{
 		retry = false;
-		cin >> x ;
-		cin.clear();
-		cin.get();
-    string y = sha256(x).substr(0,20);		
+		char *pathvar;
+		pathvar = getenv("TARGET_FILENAME");
+		x = pathvar;
+		//cin >> x ;
+		//cin.clear();
+		//cin.get();
+    string y = sha256(x);		
     cout << y << endl;
     for (unsigned int i = 0 ; i < event.getCatalog().size() ; i++) 
     {
@@ -134,6 +135,7 @@ void PIRViewCLI::catalogUpdate(CatalogEvent& event)
 			event2.setMessage("This file doesn't exist, retry :");
 			messageUpdate(event2);
 		}
+		break;
 	}while(retry);
 
 	controller->notifyClientChoice(choice);
